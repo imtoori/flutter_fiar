@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'game_chip.dart';
 import 'hole_painter.dart';
 
 enum Player {
@@ -84,7 +85,7 @@ class _MatchPageState extends State<MatchPage> with TickerProviderStateMixin {
                           ),
                           Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: Chip(color: turn),
+                            child: GameChip(color: turn),
                           ),
                         ],
                       ),
@@ -112,7 +113,7 @@ class _MatchPageState extends State<MatchPage> with TickerProviderStateMixin {
             return SizedBox();
           }
 
-          return Chip(
+          return GameChip(
             translation: translations[col][row],
             color: board[col][row],
           );
@@ -141,6 +142,7 @@ class _MatchPageState extends State<MatchPage> with TickerProviderStateMixin {
             },
             child: CustomPaint(
               size: Size(50, 50),
+              willChange: false,
               painter: HolePainter(),
             ),
           );
@@ -292,35 +294,5 @@ class _MatchPageState extends State<MatchPage> with TickerProviderStateMixin {
     }
 
     return false;
-  }
-}
-
-class Chip extends StatelessWidget {
-  const Chip({
-    Key key,
-    this.translation,
-    @required this.color,
-  }) : super(key: key);
-
-  final Animation<double> translation;
-  final Player color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Container(
-        transform: Matrix4.translationValues(
-          0,
-          ((translation?.value ?? 1) * 400) - 400,
-          0,
-        ),
-        height: 40,
-        width: 40,
-        child: Material(
-          shape: CircleBorder(),
-          color: color == Player.RED ? Colors.red : Colors.yellow,
-        ),
-      ),
-    );
   }
 }

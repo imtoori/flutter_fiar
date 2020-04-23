@@ -10,7 +10,12 @@ class HolePainter extends CustomPainter {
         PathOperation.difference,
         Path()
           ..addRRect(RRect.fromLTRBR(
-              0, 0, size.width, size.height, Radius.circular(0))),
+            -1,
+            -1,
+            size.width,
+            size.height,
+            Radius.zero,
+          )),
         Path()
           ..addOval(Rect.fromCircle(
             center: Offset(size.width / 2, size.width / 2),
