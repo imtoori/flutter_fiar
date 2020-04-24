@@ -1,5 +1,8 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
+import 'board.dart';
 import 'game_chip.dart';
 import 'hole_painter.dart';
 
@@ -14,15 +17,9 @@ class MatchPage extends StatefulWidget {
 }
 
 class _MatchPageState extends State<MatchPage> with TickerProviderStateMixin {
-  List<List<Player>> board = List.generate(
-    7,
-    (i) => List.generate(
-      7,
-      (i) => null,
-    ),
-  );
+  final board = Board();
 
-  Player turn = Player.RED;
+  Player turn = Random().nextBool() ? Player.RED : Player.YELLOW;
   List<List<Animation<double>>> translations = List.generate(
     7,
     (i) => List.generate(
@@ -109,13 +106,13 @@ class _MatchPageState extends State<MatchPage> with TickerProviderStateMixin {
           final col = i % 7;
           final row = i ~/ 7;
 
-          if (board[col][row] == null) {
+          if (board.getBox(col, row) == null) {
             return SizedBox();
           }
 
           return GameChip(
             translation: translations[col][row],
-            color: board[col][row],
+            color: board.getBox(col, row),
           );
         },
         childCount: 49,
@@ -153,8 +150,8 @@ class _MatchPageState extends State<MatchPage> with TickerProviderStateMixin {
   }
 
   void putPiece(int col, BuildContext context) {
-    final target = board[col].lastIndexOf(null);
-    final color = turn;
+    final target = board.getColumnTarget(col);
+    final player = turn;
 
     if (target == -1) {
       return;
@@ -168,7 +165,7 @@ class _MatchPageState extends State<MatchPage> with TickerProviderStateMixin {
       });
 
     setState(() {
-      board[col][target] = turn;
+      board.setBox(col, target, turn);
       turn = turn == Player.RED ? Player.YELLOW : Player.RED;
     });
 
@@ -187,8 +184,8 @@ class _MatchPageState extends State<MatchPage> with TickerProviderStateMixin {
 
     controller.forward().orCancel;
 
-    if (checkWinner(col, target, color)) {
-      showWinnerDialog(context, color);
+    if (checkWinner(col, target, player)) {
+      showWinnerDialog(context, player);
     }
   }
 
@@ -203,13 +200,7 @@ class _MatchPageState extends State<MatchPage> with TickerProviderStateMixin {
   void resetBoard() {
     setState(() {
       winner = null;
-      board = List.generate(
-        7,
-        (i) => List.generate(
-          7,
-          (i) => null,
-        ),
-      );
+      board.reset();
     });
   }
 
@@ -221,12 +212,14 @@ class _MatchPageState extends State<MatchPage> with TickerProviderStateMixin {
 
   bool checkHorizontal(int col, int target, Player color) {
     var i = 0;
-    for (; col + i < 7 && i < 4 && board[col + i][target] == color; ++i) {}
+    for (;
+        col + i < 7 && i < 4 && board.getBox(col + i, target) == color;
+        ++i) {}
     if (i == 4) {
       return true;
     }
     for (i = 0;
-        col - i >= 0 && i < 4 && board[col - i][target] == color;
+        col - i >= 0 && i < 4 && board.getBox(col - i, target) == color;
         ++i) {}
     if (i == 4) {
       return true;
@@ -241,7 +234,7 @@ class _MatchPageState extends State<MatchPage> with TickerProviderStateMixin {
         col + i < 7 &&
             target + i < 7 &&
             i < 4 &&
-            board[col + i][target + i] == color;
+            board.getBox(col + i, target + i) == color;
         ++i) {}
     if (i == 4) {
       return true;
@@ -251,7 +244,7 @@ class _MatchPageState extends State<MatchPage> with TickerProviderStateMixin {
         col - i >= 0 &&
             target - i >= 0 &&
             i < 4 &&
-            board[col - i][target - i] == color;
+            board.getBox(col - i, target - i) == color;
         ++i) {}
     if (i == 4) {
       return true;
@@ -261,7 +254,7 @@ class _MatchPageState extends State<MatchPage> with TickerProviderStateMixin {
         col + i < 7 &&
             target - i >= 0 &&
             i < 4 &&
-            board[col + i][target - i] == color;
+            board.getBox(col + i, target - i) == color;
         ++i) {}
     if (i == 4) {
       return true;
@@ -271,7 +264,7 @@ class _MatchPageState extends State<MatchPage> with TickerProviderStateMixin {
         col - i >= 0 &&
             target + i < 7 &&
             i < 4 &&
-            board[col - i][target + i] == color;
+            board.getBox(col - i, target + i) == color;
         ++i) {}
     if (i == 4) {
       return true;
@@ -282,12 +275,14 @@ class _MatchPageState extends State<MatchPage> with TickerProviderStateMixin {
 
   bool checkVertical(int col, int target, Player color) {
     var i = 0;
-    for (; target + i < 7 && i < 4 && board[col][target + i] == color; ++i) {}
+    for (;
+        target + i < 7 && i < 4 && board.getBox(col, target + i) == color;
+        ++i) {}
     if (i == 4) {
       return true;
     }
     for (i = 0;
-        target - i >= 0 && i < 4 && board[col][target - i] == color;
+        target - i >= 0 && i < 4 && board.getBox(col, target - i) == color;
         ++i) {}
     if (i == 4) {
       return true;
