@@ -4,9 +4,17 @@ Four-in-a-row game in Flutter
 
 ## Game modes
 
-At the moment only local **player vs player** mode is available.
+- Player vs Player (only local)
 
-I'm planning to add **player vs cpu** (with various difficulties) and remote **player vs player**
+- Player vs Cpu
+
+  - Dumb
+  
+  - Hard
+  
+  - Hardest
+  
+- Demo (Cpu Hard vs Cpu Hardest)
 
 ## Getting Started
 
