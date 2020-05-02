@@ -1,8 +1,10 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutterfiar/coordinate.dart';
 
 import 'board.dart';
+import 'cpu.dart';
 import 'game_chip.dart';
 import 'hole_painter.dart';
 
@@ -11,15 +13,33 @@ enum Player {
   RED,
 }
 
+enum Mode {
+  PVP,
+  PVC,
+  DEMO,
+}
+
 class MatchPage extends StatefulWidget {
+  final Mode mode;
+  final Cpu cpu;
+  final Cpu cpu2;
+
+  const MatchPage({
+    Key key,
+    this.mode,
+    this.cpu,
+    this.cpu2,
+  }) : super(key: key);
+
   @override
   _MatchPageState createState() => _MatchPageState();
 }
 
 class _MatchPageState extends State<MatchPage> with TickerProviderStateMixin {
   final board = Board();
+  Player turn;
+  Player winner;
 
-  Player turn = Random().nextBool() ? Player.RED : Player.YELLOW;
   List<List<Animation<double>>> translations = List.generate(
     7,
     (i) => List.generate(
@@ -27,8 +47,6 @@ class _MatchPageState extends State<MatchPage> with TickerProviderStateMixin {
       (i) => null,
     ),
   );
-
-  Player winner;
 
   @override
   Widget build(BuildContext context) {
@@ -84,6 +102,7 @@ class _MatchPageState extends State<MatchPage> with TickerProviderStateMixin {
                             padding: const EdgeInsets.all(8.0),
                             child: GameChip(color: turn),
                           ),
+                          _buildPlayerName(context),
                         ],
                       ),
               ),
@@ -92,6 +111,51 @@ class _MatchPageState extends State<MatchPage> with TickerProviderStateMixin {
         ),
       ),
     );
+  }
+
+  Text _buildPlayerName(BuildContext context) {
+    String name;
+
+    if (widget.mode == Mode.PVC) {
+      if (turn == widget.cpu.player) {
+        name = 'CPU - ${widget.cpu.toString()}';
+      } else {
+        name = 'USER';
+      }
+    } else if (widget.mode == Mode.PVP) {
+      if (turn == Player.RED) {
+        name = 'PLAYER1';
+      } else {
+        name = 'PLAYER2';
+      }
+    } else {
+      if (turn == widget.cpu.player) {
+        name = 'CPU1 - ${widget.cpu.toString()}';
+      } else {
+        name = 'CPU2 - ${widget.cpu2.toString()}';
+      }
+    }
+    return Text(
+      name,
+      textAlign: TextAlign.center,
+      style: Theme.of(context).textTheme.title.copyWith(color: Colors.white),
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    turn = widget.cpu?.otherPlayer ??
+        (Random().nextBool() ? Player.RED : Player.YELLOW);
+    if (widget.mode == Mode.PVC && turn == widget.cpu.player) {
+      cpuMove(widget.cpu);
+    } else if (widget.mode == Mode.DEMO) {
+      if (turn == widget.cpu.player) {
+        cpuMove(widget.cpu);
+      } else {
+        cpuMove(widget.cpu2);
+      }
+    }
   }
 
   GridView buildPieces() {
@@ -106,13 +170,13 @@ class _MatchPageState extends State<MatchPage> with TickerProviderStateMixin {
           final col = i % 7;
           final row = i ~/ 7;
 
-          if (board.getBox(col, row) == null) {
+          if (board.getBox(Coordinate(col, row)) == null) {
             return SizedBox();
           }
 
           return GameChip(
             translation: translations[col][row],
-            color: board.getBox(col, row),
+            color: board.getBox(Coordinate(col, row)),
           );
         },
         childCount: 49,
@@ -134,7 +198,7 @@ class _MatchPageState extends State<MatchPage> with TickerProviderStateMixin {
           return GestureDetector(
             onTap: () {
               if (winner == null) {
-                putPiece(col, context);
+                userMove(col);
               }
             },
             child: CustomPaint(
@@ -149,7 +213,27 @@ class _MatchPageState extends State<MatchPage> with TickerProviderStateMixin {
     );
   }
 
-  void putPiece(int col, BuildContext context) {
+  void userMove(int col) {
+    putChip(col);
+    if (winner == null && widget.mode == Mode.PVC) {
+      cpuMove(widget.cpu);
+    }
+  }
+
+  void cpuMove(Cpu cpu) async {
+    int col = await cpu.chooseCol(board);
+    putChip(col);
+
+    if (winner == null && widget.mode == Mode.DEMO) {
+      if (turn == widget.cpu.player) {
+        cpuMove(widget.cpu);
+      } else {
+        cpuMove(widget.cpu2);
+      }
+    }
+  }
+
+  void putChip(int col) {
     final target = board.getColumnTarget(col);
     final player = turn;
 
@@ -161,13 +245,17 @@ class _MatchPageState extends State<MatchPage> with TickerProviderStateMixin {
       vsync: this,
       duration: Duration(seconds: 1),
     )..addListener(() {
-        setState(() {});
+        if (mounted) {
+          setState(() {});
+        }
       });
 
-    setState(() {
-      board.setBox(col, target, turn);
-      turn = turn == Player.RED ? Player.YELLOW : Player.RED;
-    });
+    if (mounted) {
+      setState(() {
+        board.setBox(Coordinate(col, target), turn);
+        turn = turn == Player.RED ? Player.YELLOW : Player.RED;
+      });
+    }
 
     translations[col][target] = Tween(
       begin: 0.0,
@@ -184,7 +272,7 @@ class _MatchPageState extends State<MatchPage> with TickerProviderStateMixin {
 
     controller.forward().orCancel;
 
-    if (checkWinner(col, target, player)) {
+    if (board.checkWinner(Coordinate(col, target), player)) {
       showWinnerDialog(context, player);
     }
   }
@@ -194,7 +282,10 @@ class _MatchPageState extends State<MatchPage> with TickerProviderStateMixin {
       winner = player;
     });
 
-    Future.delayed(Duration(seconds: 5), () => Navigator.pop(context));
+    Future.delayed(
+      Duration(seconds: 5),
+      () => mounted ? Navigator.popUntil(context, (r) => r.isFirst) : null,
+    );
   }
 
   void resetBoard() {
@@ -202,92 +293,5 @@ class _MatchPageState extends State<MatchPage> with TickerProviderStateMixin {
       winner = null;
       board.reset();
     });
-  }
-
-  bool checkWinner(int col, int target, Player color) {
-    return checkHorizontal(col, target, color) ||
-        checkVertical(col, target, color) ||
-        checkDiagonally(col, target, color);
-  }
-
-  bool checkHorizontal(int col, int target, Player color) {
-    var i = 0;
-    for (;
-        col + i < 7 && i < 4 && board.getBox(col + i, target) == color;
-        ++i) {}
-    if (i == 4) {
-      return true;
-    }
-    for (i = 0;
-        col - i >= 0 && i < 4 && board.getBox(col - i, target) == color;
-        ++i) {}
-    if (i == 4) {
-      return true;
-    }
-
-    return false;
-  }
-
-  bool checkDiagonally(int col, int target, Player color) {
-    var i = 0;
-    for (;
-        col + i < 7 &&
-            target + i < 7 &&
-            i < 4 &&
-            board.getBox(col + i, target + i) == color;
-        ++i) {}
-    if (i == 4) {
-      return true;
-    }
-
-    for (i = 0;
-        col - i >= 0 &&
-            target - i >= 0 &&
-            i < 4 &&
-            board.getBox(col - i, target - i) == color;
-        ++i) {}
-    if (i == 4) {
-      return true;
-    }
-
-    for (i = 0;
-        col + i < 7 &&
-            target - i >= 0 &&
-            i < 4 &&
-            board.getBox(col + i, target - i) == color;
-        ++i) {}
-    if (i == 4) {
-      return true;
-    }
-
-    for (i = 0;
-        col - i >= 0 &&
-            target + i < 7 &&
-            i < 4 &&
-            board.getBox(col - i, target + i) == color;
-        ++i) {}
-    if (i == 4) {
-      return true;
-    }
-
-    return false;
-  }
-
-  bool checkVertical(int col, int target, Player color) {
-    var i = 0;
-    for (;
-        target + i < 7 && i < 4 && board.getBox(col, target + i) == color;
-        ++i) {}
-    if (i == 4) {
-      return true;
-    }
-    for (i = 0;
-        target - i >= 0 && i < 4 && board.getBox(col, target - i) == color;
-        ++i) {}
-    if (i == 4) {
-      return true;
-    }
-
-    return false;
   }
 }

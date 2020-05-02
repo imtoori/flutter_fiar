@@ -5,7 +5,7 @@ import 'package:flutterfiar/cpu.dart';
 
 import 'match_page.dart';
 
-class HomePage extends StatelessWidget {
+class CpuLevelPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -17,62 +17,64 @@ class HomePage extends StatelessWidget {
           mainAxisSize: MainAxisSize.max,
           children: <Widget>[
             FlatButton(
-              color: Colors.green,
+              color: Colors.yellow,
               child: Text(
-                'VS PLAYER',
-                style: Theme.of(context)
-                    .textTheme
-                    .display2
-                    .copyWith(color: Colors.white),
-              ),
-              onPressed: () {
-                Navigator.pushNamed(
-                  context,
-                  '/match',
-                  arguments: {
-                    'mode': Mode.PVP,
-                  },
-                );
-              },
-            ),
-            FlatButton(
-              color: Colors.black,
-              child: Text(
-                'VS CPU',
-                style: Theme.of(context)
-                    .textTheme
-                    .display2
-                    .copyWith(color: Colors.white),
-              ),
-              onPressed: () {
-                Navigator.pushNamed(
-                  context,
-                  '/cpu-level',
-                  arguments: {
-                    'mode': Mode.PVC,
-                  },
-                );
-              },
-            ),
-            FlatButton(
-              color: Colors.white,
-              child: Text(
-                'DEMO',
+                'DUMB',
                 style: Theme.of(context)
                     .textTheme
                     .display2
                     .copyWith(color: Colors.black),
               ),
               onPressed: () {
-                final harderCpu =
-                    HarderCpu(Random().nextBool() ? Player.RED : Player.YELLOW);
                 Navigator.pushNamed(
                   context,
                   '/match',
                   arguments: {
-                    'mode': Mode.DEMO,
-                    'cpu': harderCpu,
-                    'cpu2': HardestCpu(harderCpu.otherPlayer),
+                    'mode': Mode.PVC,
+                    'cpu': DumbCpu(
+                        Random().nextBool() ? Player.RED : Player.YELLOW),
+                  },
+                );
+              },
+            ),
+            FlatButton(
+              color: Colors.red,
+              child: Text(
+                'HARD',
+                style: Theme.of(context)
+                    .textTheme
+                    .display2
+                    .copyWith(color: Colors.white),
+              ),
+              onPressed: () {
+                Navigator.pushNamed(
+                  context,
+                  '/match',
+                  arguments: {
+                    'mode': Mode.PVC,
+                    'cpu': HarderCpu(
+                        Random().nextBool() ? Player.RED : Player.YELLOW),
+                  },
+                );
+              },
+            ),
+            FlatButton(
+              color: Colors.deepPurpleAccent,
+              child: Text(
+                'HARDEST',
+                style: Theme.of(context)
+                    .textTheme
+                    .display2
+                    .copyWith(color: Colors.white),
+              ),
+              onPressed: () {
+                Navigator.pushNamed(
+                  context,
+                  '/match',
+                  arguments: {
+                    'mode': Mode.PVC,
+                    'cpu': HardestCpu(
+                        Random().nextBool() ? Player.RED : Player.YELLOW),
                   },
                 );
               },
