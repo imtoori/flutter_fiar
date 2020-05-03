@@ -5,20 +5,20 @@ import 'coordinate.dart';
 import 'match_page.dart';
 
 abstract class Cpu {
-  final Player player;
+  final Color color;
   final Random _random = Random(DateTime.now().millisecond);
 
-  Cpu(this.player);
+  Cpu(this.color);
 
-  Player get otherPlayer => player == Player.RED ? Player.YELLOW : Player.RED;
+  Color get otherPlayer => color == Color.RED ? Color.YELLOW : Color.RED;
 
   Future<int> chooseCol(Board board);
 }
 
 class DumbCpu extends Cpu {
-  DumbCpu(Player player) : super(player);
+  DumbCpu(Color player) : super(player);
 
-  Player get otherPlayer => player == Player.RED ? Player.YELLOW : Player.RED;
+  Color get otherPlayer => color == Color.RED ? Color.YELLOW : Color.RED;
 
   @override
   Future<int> chooseCol(Board board) async {
@@ -33,7 +33,7 @@ class DumbCpu extends Cpu {
 }
 
 class HarderCpu extends Cpu {
-  HarderCpu(Player player) : super(player);
+  HarderCpu(Color player) : super(player);
 
   @override
   Future<int> chooseCol(Board board) async {
@@ -55,8 +55,8 @@ class HarderCpu extends Cpu {
 
       final coordinate = Coordinate(i, target);
 
-      boardCopy.setBox(coordinate, player);
-      if (boardCopy.checkWinner(coordinate, player)) {
+      boardCopy.setBox(coordinate, color);
+      if (boardCopy.checkWinner(coordinate, color)) {
         scores[i] += deepness / (step + 1);
         continue;
       }
@@ -101,7 +101,7 @@ class HarderCpu extends Cpu {
 }
 
 class HardestCpu extends HarderCpu {
-  HardestCpu(Player player) : super(player);
+  HardestCpu(Color player) : super(player);
 
   @override
   Future<int> chooseCol(Board board) async {

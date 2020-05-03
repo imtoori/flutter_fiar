@@ -10,7 +10,7 @@ class GameChip extends StatelessWidget {
   }) : super(key: key);
 
   final Animation<double> translation;
-  final Player color;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +25,7 @@ class GameChip extends StatelessWidget {
         width: 40,
         child: Material(
           shape: CircleBorder(),
-          color: color == Player.RED ? Colors.red : Colors.yellow,
+          color: color == Color.RED ? Colors.red : Colors.yellow,
         ),
       ),
     );

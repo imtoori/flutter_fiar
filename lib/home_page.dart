@@ -65,7 +65,7 @@ class HomePage extends StatelessWidget {
               ),
               onPressed: () {
                 final harderCpu =
-                    HarderCpu(Random().nextBool() ? Player.RED : Player.YELLOW);
+                    HarderCpu(Random().nextBool() ? Color.RED : Color.YELLOW);
                 Navigator.pushNamed(
                   context,
                   '/match',

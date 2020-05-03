@@ -8,7 +8,7 @@ import 'cpu.dart';
 import 'game_chip.dart';
 import 'hole_painter.dart';
 
-enum Player {
+enum Color {
   YELLOW,
   RED,
 }
@@ -37,8 +37,8 @@ class MatchPage extends StatefulWidget {
 
 class _MatchPageState extends State<MatchPage> with TickerProviderStateMixin {
   final board = Board();
-  Player turn;
-  Player winner;
+  Color turn;
+  Color winner;
 
   List<List<Animation<double>>> translations = List.generate(
     7,
@@ -81,7 +81,7 @@ class _MatchPageState extends State<MatchPage> with TickerProviderStateMixin {
                 padding: const EdgeInsets.all(32.0),
                 child: winner != null
                     ? Text(
-                        '${winner == Player.RED ? 'RED' : 'YELLOW'} WINS',
+                        '${winner == Color.RED ? 'RED' : 'YELLOW'} WINS',
                         textAlign: TextAlign.center,
                         style: Theme.of(context)
                             .textTheme
@@ -91,7 +91,7 @@ class _MatchPageState extends State<MatchPage> with TickerProviderStateMixin {
                     : Column(
                         children: <Widget>[
                           Text(
-                            '${turn == Player.RED ? 'RED' : 'YELLOW'} SPEAKS',
+                            '${turn == Color.RED ? 'RED' : 'YELLOW'} SPEAKS',
                             textAlign: TextAlign.center,
                             style: Theme.of(context)
                                 .textTheme
@@ -117,19 +117,19 @@ class _MatchPageState extends State<MatchPage> with TickerProviderStateMixin {
     String name;
 
     if (widget.mode == Mode.PVC) {
-      if (turn == widget.cpu.player) {
+      if (turn == widget.cpu.color) {
         name = 'CPU - ${widget.cpu.toString()}';
       } else {
         name = 'USER';
       }
     } else if (widget.mode == Mode.PVP) {
-      if (turn == Player.RED) {
+      if (turn == Color.RED) {
         name = 'PLAYER1';
       } else {
         name = 'PLAYER2';
       }
     } else {
-      if (turn == widget.cpu.player) {
+      if (turn == widget.cpu.color) {
         name = 'CPU1 - ${widget.cpu.toString()}';
       } else {
         name = 'CPU2 - ${widget.cpu2.toString()}';
@@ -146,11 +146,11 @@ class _MatchPageState extends State<MatchPage> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     turn = widget.cpu?.otherPlayer ??
-        (Random().nextBool() ? Player.RED : Player.YELLOW);
-    if (widget.mode == Mode.PVC && turn == widget.cpu.player) {
+        (Random().nextBool() ? Color.RED : Color.YELLOW);
+    if (widget.mode == Mode.PVC && turn == widget.cpu.color) {
       cpuMove(widget.cpu);
     } else if (widget.mode == Mode.DEMO) {
-      if (turn == widget.cpu.player) {
+      if (turn == widget.cpu.color) {
         cpuMove(widget.cpu);
       } else {
         cpuMove(widget.cpu2);
@@ -225,7 +225,7 @@ class _MatchPageState extends State<MatchPage> with TickerProviderStateMixin {
     putChip(col);
 
     if (winner == null && widget.mode == Mode.DEMO) {
-      if (turn == widget.cpu.player) {
+      if (turn == widget.cpu.color) {
         cpuMove(widget.cpu);
       } else {
         cpuMove(widget.cpu2);
@@ -253,7 +253,7 @@ class _MatchPageState extends State<MatchPage> with TickerProviderStateMixin {
     if (mounted) {
       setState(() {
         board.setBox(Coordinate(col, target), turn);
-        turn = turn == Player.RED ? Player.YELLOW : Player.RED;
+        turn = turn == Color.RED ? Color.YELLOW : Color.RED;
       });
     }
 
@@ -277,7 +277,7 @@ class _MatchPageState extends State<MatchPage> with TickerProviderStateMixin {
     }
   }
 
-  void showWinnerDialog(BuildContext context, Player player) {
+  void showWinnerDialog(BuildContext context, Color player) {
     setState(() {
       winner = player;
     });

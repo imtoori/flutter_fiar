@@ -31,8 +31,8 @@ class CpuLevelPage extends StatelessWidget {
                   '/match',
                   arguments: {
                     'mode': Mode.PVC,
-                    'cpu': DumbCpu(
-                        Random().nextBool() ? Player.RED : Player.YELLOW),
+                    'cpu':
+                        DumbCpu(Random().nextBool() ? Color.RED : Color.YELLOW),
                   },
                 );
               },
@@ -53,7 +53,7 @@ class CpuLevelPage extends StatelessWidget {
                   arguments: {
                     'mode': Mode.PVC,
                     'cpu': HarderCpu(
-                        Random().nextBool() ? Player.RED : Player.YELLOW),
+                        Random().nextBool() ? Color.RED : Color.YELLOW),
                   },
                 );
               },
@@ -74,7 +74,7 @@ class CpuLevelPage extends StatelessWidget {
                   arguments: {
                     'mode': Mode.PVC,
                     'cpu': HardestCpu(
-                        Random().nextBool() ? Player.RED : Player.YELLOW),
+                        Random().nextBool() ? Color.RED : Color.YELLOW),
                   },
                 );
               },

@@ -3,7 +3,7 @@ import 'package:flutterfiar/coordinate.dart';
 import 'match_page.dart';
 
 class Board {
-  List<List<Player>> _boxes = List.generate(
+  List<List<Color>> _boxes = List.generate(
     7,
     (i) => List.generate(
       7,
@@ -13,29 +13,28 @@ class Board {
 
   Board();
 
-  Board.from(List<List<Player>> boxes) {
+  Board.from(List<List<Color>> boxes) {
     _boxes = boxes;
   }
 
-  Player getBox(Coordinate coordinate) =>
-      _boxes[coordinate.col][coordinate.row];
+  Color getBox(Coordinate coordinate) => _boxes[coordinate.col][coordinate.row];
 
   int getColumnTarget(int col) => _boxes[col].lastIndexOf(null);
 
-  void setBox(Coordinate coordinate, Player player) =>
+  void setBox(Coordinate coordinate, Color player) =>
       _boxes[coordinate.col][coordinate.row] = player;
 
   void reset() {
     _boxes.forEach((r) => r.forEach((p) => p = null));
   }
 
-  bool checkWinner(Coordinate coordinate, Player player) {
+  bool checkWinner(Coordinate coordinate, Color player) {
     return checkHorizontally(coordinate, player) ||
         checkVertically(coordinate, player) ||
         checkDiagonally(coordinate, player);
   }
 
-  bool checkHorizontally(Coordinate coordinate, Player player) {
+  bool checkHorizontally(Coordinate coordinate, Color player) {
     var r = 0;
     for (;
         coordinate.col + r < 7 &&
@@ -59,7 +58,7 @@ class Board {
     return false;
   }
 
-  bool checkDiagonally(Coordinate coordinate, Player player) {
+  bool checkDiagonally(Coordinate coordinate, Color player) {
     var ur = 0;
     for (;
         coordinate.col + ur < 7 &&
@@ -121,7 +120,7 @@ class Board {
     return false;
   }
 
-  bool checkVertically(Coordinate coordinate, Player player) {
+  bool checkVertically(Coordinate coordinate, Color player) {
     var u = 0;
     for (;
         coordinate.row + u < 7 &&
