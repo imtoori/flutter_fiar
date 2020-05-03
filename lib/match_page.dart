@@ -51,6 +51,9 @@ class _MatchPageState extends State<MatchPage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        elevation: 0,
+      ),
       backgroundColor: Colors.blue,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -60,18 +63,28 @@ class _MatchPageState extends State<MatchPage> with TickerProviderStateMixin {
           children: <Widget>[
             Flexible(
               flex: 2,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 32.0),
-                child: Stack(
-                  children: <Widget>[
-                    Positioned.fill(
-                      child: Container(
-                        color: Colors.white,
+              child: Container(
+                constraints: BoxConstraints.loose(
+                  Size(
+                    500,
+                    532,
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 32.0),
+                  child: Stack(
+                    overflow: Overflow.clip,
+                    fit: StackFit.loose,
+                    children: <Widget>[
+                      Positioned.fill(
+                        child: Container(
+                          color: Colors.white,
+                        ),
                       ),
-                    ),
-                    buildPieces(),
-                    buildBoard(),
-                  ],
+                      buildPieces(),
+                      buildBoard(),
+                    ],
+                  ),
                 ),
               ),
             ),

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 class HolePainter extends CustomPainter {
@@ -5,26 +7,29 @@ class HolePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final paint = Paint();
     paint.color = Colors.blue;
-    canvas.drawPath(
-      Path.combine(
-        PathOperation.difference,
-        Path()
-          ..addRRect(RRect.fromLTRBR(
-            -1,
-            -1,
-            size.width,
-            size.height,
-            Radius.zero,
-          )),
-        Path()
-          ..addOval(Rect.fromCircle(
-            center: Offset(size.width / 2, size.width / 2),
-            radius: 20,
-          ))
-          ..close(),
-      ),
-      paint,
-    );
+    paint.style = PaintingStyle.fill;
+
+    final center = Offset(size.height / 2, size.width / 2);
+
+    final circleBounds = Rect.fromCircle(center: center, radius: 20);
+
+    final topPath = Path()
+      ..moveTo(-1, -1)
+      ..lineTo(-1, (size.height / 2) + 1)
+      ..arcTo(circleBounds, -pi, pi, false)
+      ..lineTo(size.width + 1, (size.height / 2) + 1)
+      ..lineTo(size.width + 1, -1)
+      ..close();
+    final bottomPath = Path()
+      ..moveTo(-1, size.height)
+      ..lineTo(-1, (size.height / 2) - 1)
+      ..arcTo(circleBounds, pi, -pi, false)
+      ..lineTo(size.width + 1, (size.height / 2) - 1)
+      ..lineTo(size.width + 1, size.height + 1)
+      ..close();
+
+    canvas.drawPath(topPath, paint);
+    canvas.drawPath(bottomPath, paint);
   }
 
   @override
